@@ -68,3 +68,12 @@ add_custom_target(
   COMMAND gcc elf2img.c -o elf2img
   WORKING_DIRECTORY "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/util/elf2img"
 )
+
+# auto convert elf to image file
+add_custom_target(
+  app.img
+  COMMAND "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/util/elf2img/elf2img" -i led_blink -o app.img -v -vectorload yes
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  DEPENDS led_blink
+  DEPENDS elf2img
+)
