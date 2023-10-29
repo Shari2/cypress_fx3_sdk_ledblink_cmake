@@ -77,3 +77,25 @@ add_custom_target(
   DEPENDS led_blink
   DEPENDS elf2img
 )
+
+# There are so many fxload variations (https://xkcd.com/927/) that is easier to build it from source.
+# Use libusb fxload for fx3 support.
+
+include(ExternalProject)
+ExternalProject_Add(
+  libusb-cmake
+  GIT_REPOSITORY https://github.com/libusb/libusb-cmake.git
+  GIT_TAG        e3189c1343789c2db36f3bf2341239a7e0b9f5ae # v1.0.26
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -H<SOURCE_DIR> -DLIBUSB_BUILD_EXAMPLES=ON -DLIBUSB_BUILD_SHARED_LIBS=OFF
+  BUILD_COMMAND ${MAKE_COMMAND}
+  INSTALL_COMMAND ""
+)
+
+# run fxload binary build from libusb
+ExternalProject_Get_property(libusb-cmake BINARY_DIR)
+add_custom_target(
+  fxload
+  COMMAND "${BINARY_DIR}/fxload" -t fx3 -d 04b4:00f3 -i app.img -v
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  DEPENDS app.img
+)
