@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Marian Sauer
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
 set(CMAKE_SYSTEM_NAME "Generic")
 set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
 
