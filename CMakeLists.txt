@@ -16,23 +16,48 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fx3_sdk_1_3_4_linux)
 
-set(cyfx3boot_source_prefix "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/libsrc/")
+# classic Cypress move: SDK has no source for CyFx3BusyWait, CyFx3DevIOConfigure and many more
+# so it is not possible to build from source
 
-add_library(cyfx3boot STATIC
-  "${cyfx3boot_source_prefix}/cyfx3device.c"
-  "${cyfx3boot_source_prefix}/cyfx3dma.c"
-  "${cyfx3boot_source_prefix}/cyfx3gpio.c"
-  "${cyfx3boot_source_prefix}/cyfx3i2c.c"
-  "${cyfx3boot_source_prefix}/cyfx3pib.c"
-  "${cyfx3boot_source_prefix}/cyfx3spi.c"
-  "${cyfx3boot_source_prefix}/cyfx3uart.c"
-  "${cyfx3boot_source_prefix}/cyfx3usb.c"
-  "${cyfx3boot_source_prefix}/cyfx3utils.c"
-  #"${cyfx3boot_source_prefix}/cyfx_gcc_startup.S"
+#set(cyfx3boot_source_prefix "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/libsrc")
+#
+#add_library(cyfx3boot STATIC
+#  "${cyfx3boot_source_prefix}/cyfx3device.c"
+#  "${cyfx3boot_source_prefix}/cyfx3dma.c"
+#  "${cyfx3boot_source_prefix}/cyfx3gpio.c"
+#  "${cyfx3boot_source_prefix}/cyfx3i2c.c"
+#  "${cyfx3boot_source_prefix}/cyfx3pib.c"
+#  "${cyfx3boot_source_prefix}/cyfx3spi.c"
+#  "${cyfx3boot_source_prefix}/cyfx3uart.c"
+#  "${cyfx3boot_source_prefix}/cyfx3usb.c"
+#  "${cyfx3boot_source_prefix}/cyfx3utils.c"
+#  #"${cyfx3boot_source_prefix}/cyfx_gcc_startup.S"  # example apps provide their own startup file
+#)
+#
+#target_include_directories(cyfx3boot PUBLIC
+#  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/include"
+#  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/sdk/firmware/include"
+#)
+#target_include_directories(cyfx3boot PRIVATE
+#  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/libsrc"
+#)
+
+
+# fallback to binary blob from Cypress
+
+add_library(cyfx3boot STATIC IMPORTED)
+set_target_properties(cyfx3boot PROPERTIES
+  IMPORTED_LOCATION "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/boot_lib/1_3_4/lib/libcyfx3boot.a"
+  INTERFACE_INCLUDE_DIRECTORIES "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/boot_lib/1_3_4/include"
 )
 
-target_include_directories(cyfx3boot PRIVATE
-  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/include"
-  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/sdk/firmware/include"
-  "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/fx3_sdk_1_3_4_src/FX3/firmware/boot_fw/libsrc"
+set(ledblik_source_prefix "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/firmware/boot_fw/ledblink")
+add_executable(led_blink
+  "${ledblik_source_prefix}/main.c"
+  "${ledblik_source_prefix}/cyfx_gcc_startup.S"
 )
+
+target_link_libraries(led_blink PRIVATE
+  cyfx3boot
+)
+target_link_options(led_blink PRIVATE "-T${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/fw_build/boot_fw/cyfx3.ld")
