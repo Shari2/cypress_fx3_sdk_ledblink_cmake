@@ -61,3 +61,10 @@ target_link_libraries(led_blink PRIVATE
   cyfx3boot
 )
 target_link_options(led_blink PRIVATE "-T${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/fw_build/boot_fw/cyfx3.ld")
+
+# quick hack to build with host gcc
+add_custom_target(
+  elf2img
+  COMMAND gcc elf2img.c -o elf2img
+  WORKING_DIRECTORY "${fx3_sdk_1_3_4_linux_SOURCE_DIR}/cyfx3sdk/util/elf2img"
+)
